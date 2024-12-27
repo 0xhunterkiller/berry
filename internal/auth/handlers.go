@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/0xhunterkiller/berry/internal/models"
-	"github.com/0xhunterkiller/berry/internal/store"
 	"github.com/0xhunterkiller/berry/internal/user"
 	"github.com/0xhunterkiller/berry/pkg/logger"
 	"github.com/go-playground/validator/v10"
@@ -12,9 +11,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func RegisterRoutes(app *fiber.App) {
-	app.Post("/auth/user/register", registerUser)
-	app.Post("/auth/user/login", loginUser)
+type AuthHandler struct {
+	userService user.UserServiceIface
+}
+
+func NewAuthHandler(userService *user.UserService) *AuthHandler {
+	return &AuthHandler{userService: userService}
+}
+
+func (ah *AuthHandler) RegisterRoutes(app *fiber.App) {
+	app.Post("/auth/user/register", ah.registerUser)
+	app.Post("/auth/user/login", ah.loginUser)
 }
 
 // Register User
@@ -24,7 +31,7 @@ type registerRequest struct {
 	password string `validate:"required"`
 }
 
-func registerUser(c *fiber.Ctx) error {
+func (ah *AuthHandler) registerUser(c *fiber.Ctx) error {
 	var req registerRequest
 
 	err := c.BodyParser(&req)
@@ -38,7 +45,7 @@ func registerUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": err.Error()})
 	}
 
-	err = user.CreateUser(req.username, req.email, req.password, true)
+	err = ah.userService.CreateUser(req.username, req.email, req.password, true)
 	if err != nil {
 		logger.Logger.Error("could not create user due to an error: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "the user was not created"})
@@ -59,7 +66,7 @@ func checkPassword(hashed string, password string) bool {
 	return err == nil
 }
 
-func loginUser(c *fiber.Ctx) error {
+func (ah *AuthHandler) loginUser(c *fiber.Ctx) error {
 	var claim loginRequest
 
 	if err := c.BodyParser(&claim); err != nil {
@@ -68,7 +75,7 @@ func loginUser(c *fiber.Ctx) error {
 	}
 
 	var user *models.UserModel
-	user, err := store.Store.UserStore.GetByUsername(claim.username)
+	user, err := ah.userService.GetByUsername(claim.username)
 	if err != nil {
 		logger.Logger.Error("could not login user due to an error: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "incorrect username or password"})

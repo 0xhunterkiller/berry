@@ -1,27 +1,29 @@
-package store
+package user
 
 import (
 	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/jmoiron/sqlx"
 )
 
-func NewUserStore(db *sqlx.DB, maxOpenConnections int, maxIdleConnections int, connMaxLifetimeMins int) *UserStore {
+type UserStore struct {
+	DB *sqlx.DB
+}
 
-	db.SetMaxOpenConns(maxOpenConnections)
-	db.SetMaxIdleConns(maxIdleConnections)
-	db.SetConnMaxLifetime(time.Duration(connMaxLifetimeMins) * time.Minute)
+type UserStoreIface interface {
+	CreateUser(user *models.UserModel) error
+	GetByID(userid string) (*models.UserModel, error)
+	GetByUsername(username string) (*models.UserModel, error)
+	UpdateByID(user *models.UserModel) error
+	DeleteByID(userid string) error
+}
 
+func NewUserStore(db *sqlx.DB) *UserStore {
 	return &UserStore{
 		DB: db,
 	}
-}
-
-type UserStore struct {
-	DB *sqlx.DB
 }
 
 func (store *UserStore) CreateUser(user *models.UserModel) error {
