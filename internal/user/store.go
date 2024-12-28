@@ -16,7 +16,8 @@ type UserStoreIface interface {
 	CreateUser(user *models.UserModel) error
 	GetByID(userid string) (*models.UserModel, error)
 	GetByUsername(username string) (*models.UserModel, error)
-	UpdateByID(user *models.UserModel) error
+	UpdateByID(userid string, col string, val string) error
+	ActivationToggleByID(userid string, op bool) error
 	DeleteByID(userid string) error
 }
 
@@ -71,13 +72,32 @@ func (store *UserStore) GetByUsername(username string) (*models.UserModel, error
 	return &user, nil
 }
 
-func (store *UserStore) UpdateByID(user *models.UserModel) error {
-	query := `
-		UPDATE users
-		SET username = $1, email = $2, hpassword = $3, isactive = $4, updatedat = NOW()
-		WHERE userid = $5
-	`
-	res, err := store.DB.Exec(query, user.Username, user.Email, user.Password, user.IsActive, user.ID)
+func (store *UserStore) UpdateByID(userid string, col string, val string) error {
+	columnQueries := map[string]string{
+		"email":     `UPDATE users SET email = $1, updatedat = NOW() WHERE userid = $2`,
+		"hpassword": `UPDATE users SET hpassword = $1, updatedat = NOW() WHERE userid = $2`,
+	}
+
+	query, exists := columnQueries[col]
+	if !exists {
+		return fmt.Errorf("invalid column specified for update: %s", col)
+	}
+
+	res, err := store.DB.Exec(query, val, userid)
+	if err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("user not found")
+	}
+	return nil
+}
+
+func (store *UserStore) ActivationToggleByID(userid string, op bool) error {
+	query := `UPDATE users SET isactive = $1, updatedat = NOW() WHERE userid = $2`
+
+	res, err := store.DB.Exec(query, op, userid)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
 	}

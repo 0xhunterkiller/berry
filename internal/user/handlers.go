@@ -28,10 +28,23 @@ func (uh *UserHandler) RegisterRoutes(app *fiber.App) {
 
 	app.Use("/user", middleware.AuthMiddleware)
 	app.Get("/user/checkauth", uh.amIAuthenticated)
+	app.Patch("/user/email", uh.updateEmail)
+	app.Patch("/user/password", uh.updatePassword)
+	app.Patch("/user/deactivate", uh.deactivateUser)
+	app.Patch("/user/activate", uh.activateUser)
+	app.Delete("/user", uh.deleteUser)
+}
+
+func forbiddenMsg(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
 }
 
 // Am I Authenticated
 func (uh *UserHandler) amIAuthenticated(c *fiber.Ctx) error {
+	if !c.Locals("chocolatedip").(bool) {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
+	}
+
 	user, err := uh.userService.GetByID(c.Locals("userid").(string))
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
@@ -117,4 +130,130 @@ func (uh *UserHandler) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jwt": jwt, "user": fiber.Map{"username": user.Username, "ts": time.Now().Unix()}})
 	}
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "incorrect username or password"})
+}
+
+// update password
+type updateEmailRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+func (uh *UserHandler) updateEmail(c *fiber.Ctx) error {
+	if !c.Locals("chocolatedip").(bool) {
+		return forbiddenMsg(c)
+	}
+
+	userID := c.Locals("userid").(string)
+	if userID == "" {
+		return forbiddenMsg(c)
+	}
+
+	var uer updateEmailRequest
+
+	if err := c.BodyParser(&uer); err != nil {
+		logger.Logger.Error("could not update user email due to an error: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid input"})
+	}
+
+	v := validator.New()
+	if err := v.Struct(&uer); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": err.Error()})
+	}
+
+	err := uh.userService.UpdateEmail(userID, uer.Email)
+	if err != nil {
+		logger.Logger.Error("an error occured while updating email: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
+	}
+
+	return nil
+}
+
+// update password
+type updatePasswordRequest struct {
+	Password string `json:"password" validate:"required"`
+}
+
+func (uh *UserHandler) updatePassword(c *fiber.Ctx) error {
+	if !c.Locals("chocolatedip").(bool) {
+		return forbiddenMsg(c)
+	}
+
+	userID := c.Locals("userid").(string)
+	if userID == "" {
+		return forbiddenMsg(c)
+	}
+
+	var upr updatePasswordRequest
+
+	if err := c.BodyParser(&upr); err != nil {
+		logger.Logger.Error("could not update user password due to an error: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid input"})
+	}
+
+	v := validator.New()
+	if err := v.Struct(&upr); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": err.Error()})
+	}
+
+	err := uh.userService.UpdatePassword(userID, upr.Password)
+	if err != nil {
+		logger.Logger.Error("an error occured while updating password: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
+	}
+
+	return nil
+}
+
+func (uh *UserHandler) deactivateUser(c *fiber.Ctx) error {
+	if !c.Locals("chocolatedip").(bool) {
+		return forbiddenMsg(c)
+	}
+
+	userID := c.Locals("userid").(string)
+	if userID == "" {
+		return forbiddenMsg(c)
+	}
+
+	err := uh.userService.DeactivateUser(userID)
+	if err != nil {
+		logger.Logger.Error("an error occured while deactivating user: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
+	}
+	return nil
+}
+
+func (uh *UserHandler) activateUser(c *fiber.Ctx) error {
+	if !c.Locals("chocolatedip").(bool) {
+		return forbiddenMsg(c)
+	}
+
+	userID := c.Locals("userid").(string)
+	if userID == "" {
+		return forbiddenMsg(c)
+	}
+
+	err := uh.userService.ActivateUser(userID)
+	if err != nil {
+		logger.Logger.Error("an error occured while activating user: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
+	}
+	return nil
+}
+
+func (uh *UserHandler) deleteUser(c *fiber.Ctx) error {
+	if !c.Locals("chocolatedip").(bool) {
+		return forbiddenMsg(c)
+	}
+
+	userID := c.Locals("userid").(string)
+	if userID == "" {
+		return forbiddenMsg(c)
+	}
+
+	err := uh.userService.DeleteUser(userID)
+	if err != nil {
+		logger.Logger.Error("an error occured while deleting user: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
+	}
+	return nil
 }
