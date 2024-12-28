@@ -31,15 +31,15 @@ import (
 //   - os.LookupEnv for checking environment variables.
 //   - log.Fatalln for logging fatal errors and exiting.
 
-func LoadEnvironment(envkeys ...string) {
+func LoadEnvironment(envKeys ...string) {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("proper .env file not found")
 	}
 
-	for _, v := range envkeys {
+	for _, v := range envKeys {
 		if _, ok := os.LookupEnv(v); !ok {
-			log.Fatalln("Env is not set: ", v)
+			log.Fatalln("env is not set: ", v)
 		}
 	}
 }

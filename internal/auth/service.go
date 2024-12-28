@@ -56,7 +56,7 @@ func validateJWT(tokenstr string) (bool, string, error) {
 		userid = claims["userid"].(string)
 		return true, userid, nil
 	}
-	return false, userid, fmt.Errorf("invalid claims format")
+	return false, userid, fmt.Errorf("invalid claims")
 }
 
 func unauthorizedResponse(c *fiber.Ctx) error {

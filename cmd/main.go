@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/0xhunterkiller/berry/internal/appinit"
+	"github.com/0xhunterkiller/berry/internal/middleware"
 	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/0xhunterkiller/berry/pkg/dbpsql"
 	"github.com/0xhunterkiller/berry/pkg/logger"
@@ -18,13 +19,33 @@ import (
 
 func main() {
 	// load env vars
-	utils.LoadEnvironment("LOG_LEVEL", "APP_PORT", "JWT_KEY", "PSQL_HOST", "PSQL_PORT", "PSQL_USER", "PSQL_PASSWORD", "PSQL_DB", "PSQL_SSLMODE", "MIG_DIR")
+	envKeys := []string{
+		"LOG_LEVEL",
+		"APP_PORT",
+		"JWT_KEY",
+		"PSQL_HOST",
+		"PSQL_PORT",
+		"PSQL_USER",
+		"PSQL_PASSWORD",
+		"PSQL_DB",
+		"PSQL_SSLMODE",
+		"MIG_DIR"}
+	utils.LoadEnvironment(envKeys...)
 
 	// initialize logger
 	logger.InitLogger()
 
-	// Migration Up
-	db, err := dbpsql.ConnectDB(10, 5, 30)
+	// Open DB Connection
+	psqlInfo := fmt.Sprintf(
+		"host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
+		os.Getenv("PSQL_HOST"),
+		os.Getenv("PSQL_PORT"),
+		os.Getenv("PSQL_USER"),
+		os.Getenv("PSQL_PASSWORD"),
+		os.Getenv("PSQL_DB"),
+		os.Getenv("PSQL_SSLMODE"))
+
+	db, err := dbpsql.ConnectDB(psqlInfo, 10, 5, 30)
 	if err != nil {
 		logger.Logger.Fatalf("Failed to connect to the database: %v", err)
 	}
@@ -34,15 +55,19 @@ func main() {
 	}
 
 	defer dbpsql.CloseDBConn(db)
+
+	// Migration Up
 	dbpsql.MigUp(db)
 
+	// Prepare an injection
 	inj := &models.Deps{DB: db}
 
-	// Initialize Application
+	// Initialize Application Layers (Handlers -> Services -> Store)
 	handlers := appinit.AppInit(inj)
 
-	// start fiber app
+	// Start Fiber app
 	app := fiber.New()
+	app.Use(middleware.LogRequests)
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"timestamp": time.Now()})
@@ -52,6 +77,7 @@ func main() {
 	ah := handlers.AuthHandler
 	ah.RegisterRoutes(app)
 
+	// Graceful Shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 

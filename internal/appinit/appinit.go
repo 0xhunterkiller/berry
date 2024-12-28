@@ -22,7 +22,7 @@ type Handlers struct {
 	AuthHandler *auth.AuthHandler
 }
 
-func initializeHandlers(services *Services, inj *models.Deps) *Handlers {
+func initializeHandlers(services *Services) *Handlers {
 	return &Handlers{
 		AuthHandler: auth.NewAuthHandler(services.UserService),
 	}
@@ -30,6 +30,6 @@ func initializeHandlers(services *Services, inj *models.Deps) *Handlers {
 
 func AppInit(inj *models.Deps) *Handlers {
 	services := initializeServices(inj)
-	handlers := initializeHandlers(services, inj)
+	handlers := initializeHandlers(services)
 	return handlers
 }

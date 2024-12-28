@@ -13,10 +13,10 @@ import (
 )
 
 // ConnectDB establishes a connection to the PostgreSQL database with connection pooling configurations.
-// It reads database configuration values (host, port, user, password, database name, and SSL mode) from environment variables.
 // The function also allows setting the maximum number of open connections, maximum idle connections, and maximum connection lifetime.
 //
 // Parameters:
+//   - psqlInfo string: The connection string for the postgres instance.
 //   - maxOpenConnections int: The maximum number of open connections to the database.
 //   - maxIdleConnections int: The maximum number of idle connections in the connection pool.
 //   - connMaxLifetimeMins int: The maximum lifetime of a connection in minutes.
@@ -24,16 +24,7 @@ import (
 // Returns:
 //   - *sqlx.DB: A pointer to the sqlx.DB object representing the database connection.
 //   - error: An error object if the connection fails or configuration encounters an issue, otherwise nil.
-func ConnectDB(maxOpenConnections int, maxIdleConnections int, connMaxLifetimeMins int) (*sqlx.DB, error) {
-
-	psqlInfo := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
-		os.Getenv("PSQL_HOST"),
-		os.Getenv("PSQL_PORT"),
-		os.Getenv("PSQL_USER"),
-		os.Getenv("PSQL_PASSWORD"),
-		os.Getenv("PSQL_DB"),
-		os.Getenv("PSQL_SSLMODE"))
-
+func ConnectDB(psqlInfo string, maxOpenConnections int, maxIdleConnections int, connMaxLifetimeMins int) (*sqlx.DB, error) {
 	var err error
 
 	db, err := sqlx.Connect("postgres", psqlInfo)
