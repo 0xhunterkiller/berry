@@ -1,10 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/0xhunterkiller/berry/internal/appinit"
+	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/0xhunterkiller/berry/pkg/dbpsql"
 	"github.com/0xhunterkiller/berry/pkg/logger"
 	"github.com/0xhunterkiller/berry/pkg/utils"
@@ -12,28 +17,29 @@ import (
 )
 
 func main() {
-
 	// load env vars
-	utils.LoadEnvironment("LOG_LEVEL", "JWT_KEY", "PSQL_HOST", "PSQL_PORT", "PSQL_USER", "PSQL_PASSWORD", "PSQL_DB", "PSQL_SSLMODE", "MIG_DIR")
+	utils.LoadEnvironment("LOG_LEVEL", "APP_PORT", "JWT_KEY", "PSQL_HOST", "PSQL_PORT", "PSQL_USER", "PSQL_PASSWORD", "PSQL_DB", "PSQL_SSLMODE", "MIG_DIR")
 
 	// initialize logger
-	logger.InitLogger()
+	l := logger.InitLogger()
 
 	// Migration Up
 	db, err := dbpsql.ConnectDB(10, 5, 30)
 	if err != nil {
-		logger.Logger.Errorf("Failed to connect to the database: %v", err)
+		l.Fatalf("Failed to connect to the database: %v", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		logger.Logger.Errorf("failed to connect to the database: %v", err)
+		l.Fatalf("failed to connect to the database: %v", err)
 	}
 
 	defer dbpsql.CloseDBConn(db)
 	dbpsql.MigUp(db)
 
+	ston := &models.Deps{DB: db, Logger: l}
+
 	// Initialize Application
-	handlers := appinit.AppInit(db)
+	handlers := appinit.AppInit(ston)
 
 	// start fiber app
 	app := fiber.New()
@@ -46,5 +52,18 @@ func main() {
 	ah := handlers.AuthHandler
 	ah.RegisterRoutes(app)
 
-	log.Fatalln(app.Listen(":3000"))
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-c
+		log.Println("Gracefully shutting down...")
+		err = app.Shutdown()
+		if err != nil {
+			log.Println("Encountered an error, while shutting down ", err)
+		}
+		dbpsql.CloseDBConn(db)
+	}()
+
+	log.Fatalln(app.Listen(fmt.Sprintf(":%v", os.Getenv("APP_PORT"))))
 }

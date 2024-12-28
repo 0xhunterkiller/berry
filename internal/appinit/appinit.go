@@ -2,16 +2,16 @@ package appinit
 
 import (
 	"github.com/0xhunterkiller/berry/internal/auth"
+	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/0xhunterkiller/berry/internal/user"
-	"github.com/jmoiron/sqlx"
 )
 
 type Services struct {
 	UserService *user.UserService
 }
 
-func initializeServices(db *sqlx.DB) *Services {
-	userStore := user.NewUserStore(db)
+func initializeServices(ston *models.Deps) *Services {
+	userStore := user.NewUserStore(ston.DB)
 
 	return &Services{
 		UserService: user.NewUserService(userStore),
@@ -22,14 +22,14 @@ type Handlers struct {
 	AuthHandler *auth.AuthHandler
 }
 
-func initializeHandlers(db *sqlx.DB) *Handlers {
-	services := initializeServices(db)
+func initializeHandlers(services *Services, ston *models.Deps) *Handlers {
 	return &Handlers{
-		AuthHandler: auth.NewAuthHandler(services.UserService),
+		AuthHandler: auth.NewAuthHandler(services.UserService, ston.Logger),
 	}
 }
 
-func AppInit(db *sqlx.DB) *Handlers {
-	handlers := initializeHandlers(db)
+func AppInit(ston *models.Deps) *Handlers {
+	services := initializeServices(ston)
+	handlers := initializeHandlers(services, ston)
 	return handlers
 }
