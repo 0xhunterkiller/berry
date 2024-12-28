@@ -21,25 +21,25 @@ func main() {
 	utils.LoadEnvironment("LOG_LEVEL", "APP_PORT", "JWT_KEY", "PSQL_HOST", "PSQL_PORT", "PSQL_USER", "PSQL_PASSWORD", "PSQL_DB", "PSQL_SSLMODE", "MIG_DIR")
 
 	// initialize logger
-	l := logger.InitLogger()
+	logger.InitLogger()
 
 	// Migration Up
 	db, err := dbpsql.ConnectDB(10, 5, 30)
 	if err != nil {
-		l.Fatalf("Failed to connect to the database: %v", err)
+		logger.Logger.Fatalf("Failed to connect to the database: %v", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		l.Fatalf("failed to connect to the database: %v", err)
+		logger.Logger.Fatalf("failed to connect to the database: %v", err)
 	}
 
 	defer dbpsql.CloseDBConn(db)
 	dbpsql.MigUp(db)
 
-	ston := &models.Deps{DB: db, Logger: l}
+	inj := &models.Deps{DB: db}
 
 	// Initialize Application
-	handlers := appinit.AppInit(ston)
+	handlers := appinit.AppInit(inj)
 
 	// start fiber app
 	app := fiber.New()

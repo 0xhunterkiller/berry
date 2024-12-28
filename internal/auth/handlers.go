@@ -5,19 +5,18 @@ import (
 
 	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/0xhunterkiller/berry/internal/user"
+	"github.com/0xhunterkiller/berry/pkg/logger"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthHandler struct {
-	logger      *logrus.Logger
 	userService user.UserServiceIface
 }
 
-func NewAuthHandler(userService *user.UserService, logger *logrus.Logger) *AuthHandler {
-	return &AuthHandler{userService: userService, logger: logger}
+func NewAuthHandler(userService *user.UserService) *AuthHandler {
+	return &AuthHandler{userService: userService}
 }
 
 func (ah *AuthHandler) RegisterRoutes(app *fiber.App) {
@@ -37,7 +36,7 @@ func (ah *AuthHandler) registerUser(c *fiber.Ctx) error {
 
 	err := c.BodyParser(&req)
 	if err != nil {
-		ah.logger.Error("the request body was invalid: ", err)
+		logger.Logger.Error("the request body was invalid: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "the request body is invalid"})
 	}
 
@@ -48,10 +47,10 @@ func (ah *AuthHandler) registerUser(c *fiber.Ctx) error {
 
 	err = ah.userService.CreateUser(req.username, req.email, req.password, true)
 	if err != nil {
-		ah.logger.Error("could not create user due to an error: ", err)
+		logger.Logger.Error("could not create user due to an error: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "the user was not created"})
 	}
-	ah.logger.Info("the user was created successfully")
+	logger.Logger.Info("the user was created successfully")
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "the user was created successfully"})
 }
 
@@ -71,14 +70,14 @@ func (ah *AuthHandler) loginUser(c *fiber.Ctx) error {
 	var claim loginRequest
 
 	if err := c.BodyParser(&claim); err != nil {
-		ah.logger.Error("could not login user due to an error: ", err)
+		logger.Logger.Error("could not login user due to an error: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid input"})
 	}
 
 	var user *models.UserModel
 	user, err := ah.userService.GetByUsername(claim.username)
 	if err != nil {
-		ah.logger.Error("could not login user due to an error: ", err)
+		logger.Logger.Error("could not login user due to an error: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "incorrect username or password"})
 	}
 
@@ -90,7 +89,7 @@ func (ah *AuthHandler) loginUser(c *fiber.Ctx) error {
 	if checkPassword(user.Password, claim.password) {
 		jwt, err := generateJWT(user)
 		if err != nil {
-			ah.logger.Error("could not login user due to an error: ", err)
+			logger.Logger.Error("could not login user due to an error: ", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to authenticate user"})
 		}
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"jwt": jwt, "user": fiber.Map{"username": user.Username, "ts": time.Now().Unix()}})

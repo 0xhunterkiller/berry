@@ -10,8 +10,8 @@ type Services struct {
 	UserService *user.UserService
 }
 
-func initializeServices(ston *models.Deps) *Services {
-	userStore := user.NewUserStore(ston.DB)
+func initializeServices(inj *models.Deps) *Services {
+	userStore := user.NewUserStore(inj.DB)
 
 	return &Services{
 		UserService: user.NewUserService(userStore),
@@ -22,14 +22,14 @@ type Handlers struct {
 	AuthHandler *auth.AuthHandler
 }
 
-func initializeHandlers(services *Services, ston *models.Deps) *Handlers {
+func initializeHandlers(services *Services, inj *models.Deps) *Handlers {
 	return &Handlers{
-		AuthHandler: auth.NewAuthHandler(services.UserService, ston.Logger),
+		AuthHandler: auth.NewAuthHandler(services.UserService),
 	}
 }
 
-func AppInit(ston *models.Deps) *Handlers {
-	services := initializeServices(ston)
-	handlers := initializeHandlers(services, ston)
+func AppInit(inj *models.Deps) *Handlers {
+	services := initializeServices(inj)
+	handlers := initializeHandlers(services, inj)
 	return handlers
 }

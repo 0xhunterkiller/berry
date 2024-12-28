@@ -38,9 +38,11 @@ import (
 // Notes:
 //   - Ensure the LOG_LEVEL environment variable is set correctly in your environment.
 //   - Typical log levels include "info", "warn", and "error".
+var Logger *logrus.Logger
+
 func InitLogger() *logrus.Logger {
-	logger := logrus.New()
-	logger.SetFormatter(&logrus.JSONFormatter{})
+	Logger = logrus.New()
+	Logger.SetFormatter(&logrus.JSONFormatter{})
 	logLevel := os.Getenv("LOG_LEVEL")
 	if logLevel == "" {
 		logLevel = "info" // Default to "info" if LOG_LEVEL is not set
@@ -52,6 +54,6 @@ func InitLogger() *logrus.Logger {
 		fmt.Printf("Invalid log level, defaulting to INFO: %v\n", err)
 		level = logrus.InfoLevel
 	}
-	logger.SetLevel(level)
-	return logger
+	Logger.SetLevel(level)
+	return Logger
 }
