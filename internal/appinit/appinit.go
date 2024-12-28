@@ -1,7 +1,6 @@
 package appinit
 
 import (
-	"github.com/0xhunterkiller/berry/internal/auth"
 	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/0xhunterkiller/berry/internal/user"
 )
@@ -19,12 +18,12 @@ func initializeServices(inj *models.Deps) *Services {
 }
 
 type Handlers struct {
-	AuthHandler *auth.AuthHandler
+	UserHandler *user.UserHandler
 }
 
 func initializeHandlers(services *Services) *Handlers {
 	return &Handlers{
-		AuthHandler: auth.NewAuthHandler(services.UserService),
+		UserHandler: user.NewUserHandler(services.UserService),
 	}
 }
 

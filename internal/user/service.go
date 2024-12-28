@@ -14,6 +14,7 @@ type UserService struct {
 type UserServiceIface interface {
 	CreateUser(username string, email string, password string, isactive bool) error
 	GetByUsername(username string) (*models.UserModel, error)
+	GetByID(userID string) (*models.UserModel, error)
 }
 
 func NewUserService(userStore *UserStore) *UserService {
@@ -51,5 +52,17 @@ func (us *UserService) CreateUser(username string, email string, password string
 }
 
 func (us *UserService) GetByUsername(username string) (*models.UserModel, error) {
-	return nil, nil
+	user, err := us.Store.GetByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (us *UserService) GetByID(userID string) (*models.UserModel, error) {
+	user, err := us.Store.GetByID(userID)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }

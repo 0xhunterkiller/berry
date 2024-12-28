@@ -73,9 +73,9 @@ func main() {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"timestamp": time.Now()})
 	})
 
-	// Register Auth Handler
-	ah := handlers.AuthHandler
-	ah.RegisterRoutes(app)
+	// Register User Handler
+	uh := handlers.UserHandler
+	uh.RegisterRoutes(app)
 
 	// Graceful Shutdown
 	c := make(chan os.Signal, 1)
