@@ -47,7 +47,7 @@ func (store *UserStore) GetByID(userid string) (*models.UserModel, error) {
 	var user models.UserModel
 	err := store.DB.Get(&user, query, userid)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("user not found")
 		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -77,9 +77,13 @@ func (store *UserStore) UpdateByID(user *models.UserModel) error {
 		SET username = $1, email = $2, hpassword = $3, isactive = $4, updatedat = NOW()
 		WHERE userid = $5
 	`
-	_, err := store.DB.Exec(query, user.Username, user.Email, user.Password, user.IsActive, user.ID)
+	res, err := store.DB.Exec(query, user.Username, user.Email, user.Password, user.IsActive, user.ID)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
+	}
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("user not found")
 	}
 	return nil
 }

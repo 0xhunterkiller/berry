@@ -47,11 +47,13 @@ func main() {
 
 	db, err := dbpsql.ConnectDB(psqlInfo, 10, 5, 30)
 	if err != nil {
-		logger.Logger.Fatalf("Failed to connect to the database: %v", err)
+		logger.Logger.Errorf("Failed to connect to the database: %v", err)
+		os.Exit(1)
 	}
 
 	if err := db.Ping(); err != nil {
-		logger.Logger.Fatalf("failed to connect to the database: %v", err)
+		logger.Logger.Errorf("failed to connect to the database: %v", err)
+		os.Exit(1)
 	}
 
 	defer dbpsql.CloseDBConn(db)
@@ -83,10 +85,10 @@ func main() {
 
 	go func() {
 		<-c
-		log.Println("Gracefully shutting down...")
+		logger.Logger.Info("Gracefully shutting down...")
 		err = app.Shutdown()
 		if err != nil {
-			log.Println("Encountered an error, while shutting down ", err)
+			logger.Logger.Error("Encountered an error, while shutting down ", err)
 		}
 		dbpsql.CloseDBConn(db)
 	}()

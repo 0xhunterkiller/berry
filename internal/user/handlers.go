@@ -31,7 +31,6 @@ func (uh *UserHandler) RegisterRoutes(app *fiber.App) {
 }
 
 // Am I Authenticated
-
 func (uh *UserHandler) amIAuthenticated(c *fiber.Ctx) error {
 	user, err := uh.userService.GetByID(c.Locals("userid").(string))
 	if err != nil {

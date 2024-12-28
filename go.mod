@@ -3,6 +3,7 @@ module github.com/0xhunterkiller/berry
 go 1.23.0
 
 require (
+	github.com/TwiN/go-away v1.6.14
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/golang-jwt/jwt/v5 v5.2.1
@@ -10,6 +11,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
+	github.com/wagslane/go-password-validator v0.3.0
 	golang.org/x/crypto v0.31.0
 )
 

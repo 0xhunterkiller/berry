@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"github.com/0xhunterkiller/berry/pkg/jwtutil"
-	"github.com/0xhunterkiller/berry/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -16,7 +15,6 @@ func AuthMiddleware(c *fiber.Ctx) error {
 		return unauthorizedResponse(c)
 	}
 
-	logger.Logger.Debug(tokenString)
 	ok, token, err := jwtutil.CheckAndGetJWT(tokenString, []string{"HS256"}, "berry-authn", "userid")
 	if !ok || err != nil {
 		return unauthorizedResponse(c)
@@ -26,5 +24,6 @@ func AuthMiddleware(c *fiber.Ctx) error {
 		return unauthorizedResponse(c)
 	}
 	c.Locals("userid", userID)
+	c.Locals("chocolatedip", true)
 	return c.Next()
 }

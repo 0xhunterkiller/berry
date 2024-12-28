@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/0xhunterkiller/berry/internal/models"
+	pv "github.com/wagslane/go-password-validator"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,6 +23,13 @@ func NewUserService(userStore *UserStore) *UserService {
 }
 
 func (us *UserService) CreateUser(username string, email string, password string, isactive bool) error {
+
+	// validatePassword checks for password complexity.
+	const minEntropyBits = 60
+	err := pv.Validate(password, minEntropyBits)
+	if err != nil {
+		return fmt.Errorf("password too weak: %v", err.Error())
+	}
 
 	// hash the password with bcrypt algorithm, which is suitable for passwords at rest
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
