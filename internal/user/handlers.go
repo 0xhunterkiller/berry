@@ -259,6 +259,7 @@ func (uh *UserHandler) deleteUser(c *fiber.Ctx) error {
 }
 
 type UserHandlerIface interface {
+	RegisterRoutes(app *fiber.App)
 	amIAuthenticated(c *fiber.Ctx) error
 	registerUser(c *fiber.Ctx) error
 	loginUser(c *fiber.Ctx) error
