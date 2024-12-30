@@ -129,6 +129,4 @@ run_test "SQL Injection simulation" \
 run_test "XSS Injection" \
     "curl -X POST $BASE_URL/auth/user/register -H 'Content-Type: application/json' -d '{\"username\":\"<script>alert(1)</script>\",\"email\":\"userxss@example.com\",\"password\":\"Password#3242\"}'"
 
-# Add more tests as needed to reach 100!
-
-echo "All tests completed!"
+echo "Phase 1 tests completed!"

@@ -55,6 +55,7 @@ erDiagram
     roles {
         UUID id PK
         string name
+        string description
         timestamp createdat
     }
 
@@ -68,6 +69,7 @@ erDiagram
     permissions {
         UUID id PK
         string name
+        string description
         timestamp createdat
     }
 
@@ -81,12 +83,14 @@ erDiagram
     resources {
         UUID id PK
         string name
+        string description
         timestamp createdat
     }
 
     actions {
         UUID id PK
         string name
+        string description
         timestamp createdat
     }
 

@@ -15,6 +15,7 @@ CREATE TABLE users (
 CREATE TABLE roles (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
     createdat TIMESTAMP DEFAULT NOW()
 );
 
@@ -22,6 +23,7 @@ CREATE TABLE roles (
 CREATE TABLE permissions (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
     createdat TIMESTAMP DEFAULT NOW()
 );
 
@@ -29,6 +31,7 @@ CREATE TABLE permissions (
 CREATE TABLE resources (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
     createdat TIMESTAMP DEFAULT NOW()
 );
 
@@ -36,5 +39,6 @@ CREATE TABLE resources (
 CREATE TABLE actions (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
     createdat TIMESTAMP DEFAULT NOW()
 );
