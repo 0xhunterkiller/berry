@@ -15,11 +15,11 @@ import (
 )
 
 type UserHandler struct {
-	userService UserServiceIface
+	service UserServiceIface
 }
 
-func NewUserHandler(userService *UserService) *UserHandler {
-	return &UserHandler{userService: userService}
+func NewUserHandler(service UserServiceIface) UserHandlerIface {
+	return &UserHandler{service: service}
 }
 
 func (uh *UserHandler) RegisterRoutes(app *fiber.App) {
@@ -45,7 +45,7 @@ func (uh *UserHandler) amIAuthenticated(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
 	}
 
-	user, err := uh.userService.GetByID(c.Locals("userid").(string))
+	user, err := uh.service.getByID(c.Locals("userid").(string))
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
 	}
@@ -73,7 +73,7 @@ func (uh *UserHandler) registerUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": err.Error()})
 	}
 
-	err = uh.userService.CreateUser(req.Username, req.Email, req.Password, true)
+	err = uh.service.createUser(req.Username, req.Email, req.Password, true)
 	if err != nil {
 		logger.Logger.Error("could not create user due to an error: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "the user was not created"})
@@ -102,7 +102,7 @@ func (uh *UserHandler) loginUser(c *fiber.Ctx) error {
 	}
 
 	var user *models.UserModel
-	user, err := uh.userService.GetByUsername(claim.Username)
+	user, err := uh.service.getByUsername(claim.Username)
 	if err != nil {
 		logger.Logger.Error("could not login user due to an error: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "incorrect username or password"})
@@ -159,7 +159,7 @@ func (uh *UserHandler) updateEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": err.Error()})
 	}
 
-	err := uh.userService.UpdateEmail(userID, uer.Email)
+	err := uh.service.updateEmail(userID, uer.Email)
 	if err != nil {
 		logger.Logger.Error("an error occured while updating email: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
@@ -195,7 +195,7 @@ func (uh *UserHandler) updatePassword(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": err.Error()})
 	}
 
-	err := uh.userService.UpdatePassword(userID, upr.Password)
+	err := uh.service.updatePassword(userID, upr.Password)
 	if err != nil {
 		logger.Logger.Error("an error occured while updating password: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
@@ -214,7 +214,7 @@ func (uh *UserHandler) deactivateUser(c *fiber.Ctx) error {
 		return forbiddenMsg(c)
 	}
 
-	err := uh.userService.DeactivateUser(userID)
+	err := uh.service.deactivateUser(userID)
 	if err != nil {
 		logger.Logger.Error("an error occured while deactivating user: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
@@ -232,7 +232,7 @@ func (uh *UserHandler) activateUser(c *fiber.Ctx) error {
 		return forbiddenMsg(c)
 	}
 
-	err := uh.userService.ActivateUser(userID)
+	err := uh.service.activateUser(userID)
 	if err != nil {
 		logger.Logger.Error("an error occured while activating user: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
@@ -250,10 +250,23 @@ func (uh *UserHandler) deleteUser(c *fiber.Ctx) error {
 		return forbiddenMsg(c)
 	}
 
-	err := uh.userService.DeleteUser(userID)
+	err := uh.service.deleteUser(userID)
 	if err != nil {
 		logger.Logger.Error("an error occured while deleting user: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
 	}
 	return nil
 }
+
+type UserHandlerIface interface {
+	amIAuthenticated(c *fiber.Ctx) error
+	registerUser(c *fiber.Ctx) error
+	loginUser(c *fiber.Ctx) error
+	updateEmail(c *fiber.Ctx) error
+	updatePassword(c *fiber.Ctx) error
+	deactivateUser(c *fiber.Ctx) error
+	activateUser(c *fiber.Ctx) error
+	deleteUser(c *fiber.Ctx) error
+}
+
+var _ UserHandlerIface = &UserHandler{}

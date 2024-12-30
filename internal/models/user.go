@@ -29,7 +29,7 @@ var reservedUsernames = []string{
 	"default", "anonymous", "unknown", "null", "temp", "example",
 	"ceo", "cto", "manager", "founder", "team", "staff", "employee",
 	"api", "bot", "service", "webmaster", "postmaster", "noreply", "mailer", "adminbot",
-	"http", "https", "ftp", "mail", "smtp", "imap", "dns", "localhost", "berry",
+	"http", "https", "ftp", "mail", "smtp", "imap", "dns", "localhost", "berry", "berryroot",
 }
 
 func isReserved(username string) bool {

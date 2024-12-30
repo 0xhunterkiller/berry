@@ -9,23 +9,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserService struct {
-	Store UserStoreIface
+type userService struct {
+	store UserStoreIface
 }
 
-type UserServiceIface interface {
-	CreateUser(username string, email string, password string, isactive bool) error
-	GetByUsername(username string) (*models.UserModel, error)
-	GetByID(userID string) (*models.UserModel, error)
-	UpdateEmail(userID string, email string) error
-	UpdatePassword(userID string, password string) error
-	DeactivateUser(userID string) error
-	ActivateUser(userID string) error
-	DeleteUser(userID string) error
-}
-
-func NewUserService(userStore *UserStore) *UserService {
-	return &UserService{Store: userStore}
+func NewUserService(store UserStoreIface) UserServiceIface {
+	return &userService{store: store}
 }
 
 func validateAndGeneratePasswordHash(password string) (string, error) {
@@ -44,13 +33,11 @@ func validateAndGeneratePasswordHash(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (us *UserService) CreateUser(username string, email string, password string, isactive bool) error {
-
+func (us *userService) createUser(username string, email string, password string, isactive bool) error {
 	hpassword, err := validateAndGeneratePasswordHash(password)
 	if err != nil {
 		return fmt.Errorf("validation error: %w", err)
 	}
-
 	// setup and validate the users
 	user := models.UserModel{
 		Username: username,
@@ -58,38 +45,35 @@ func (us *UserService) CreateUser(username string, email string, password string
 		Password: hpassword,
 		IsActive: isactive,
 	}
-
 	err = user.Validate()
 	if err != nil {
 		return fmt.Errorf("validation error: %w", err)
 	}
-
 	// create the user in db
-	err = us.Store.CreateUser(&user)
+	err = us.store.createUser(&user)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
-
 	return nil
 }
 
-func (us *UserService) GetByUsername(username string) (*models.UserModel, error) {
-	user, err := us.Store.GetByUsername(username)
+func (us *userService) getByUsername(username string) (*models.UserModel, error) {
+	user, err := us.store.getByUsername(username)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (us *UserService) GetByID(userID string) (*models.UserModel, error) {
-	user, err := us.Store.GetByID(userID)
+func (us *userService) getByID(userID string) (*models.UserModel, error) {
+	user, err := us.store.getByID(userID)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (us *UserService) UpdateEmail(userID string, email string) error {
+func (us *userService) updateEmail(userID string, email string) error {
 
 	v := validator.New()
 	err := v.Var(email, "email")
@@ -97,7 +81,7 @@ func (us *UserService) UpdateEmail(userID string, email string) error {
 		return fmt.Errorf("error validating email: %w", err)
 	}
 
-	err = us.Store.UpdateByID(userID, "email", email)
+	err = us.store.updateByID(userID, "email", email)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
@@ -105,14 +89,14 @@ func (us *UserService) UpdateEmail(userID string, email string) error {
 	return nil
 }
 
-func (us *UserService) UpdatePassword(userID string, password string) error {
+func (us *userService) updatePassword(userID string, password string) error {
 
 	hpassword, err := validateAndGeneratePasswordHash(password)
 	if err != nil {
 		return fmt.Errorf("validation error: %w", err)
 	}
 
-	err = us.Store.UpdateByID(userID, "hpassword", hpassword)
+	err = us.store.updateByID(userID, "hpassword", hpassword)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
@@ -120,26 +104,39 @@ func (us *UserService) UpdatePassword(userID string, password string) error {
 	return nil
 }
 
-func (us *UserService) DeactivateUser(userID string) error {
-	err := us.Store.ActivationToggleByID(userID, false)
+func (us *userService) deactivateUser(userID string) error {
+	err := us.store.activationToggleByID(userID, false)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
 	return nil
 }
 
-func (us *UserService) ActivateUser(userID string) error {
-	err := us.Store.ActivationToggleByID(userID, true)
+func (us *userService) activateUser(userID string) error {
+	err := us.store.activationToggleByID(userID, true)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
 	return nil
 }
 
-func (us *UserService) DeleteUser(userID string) error {
-	err := us.Store.DeleteByID(userID)
+func (us *userService) deleteUser(userID string) error {
+	err := us.store.deleteByID(userID)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
 	return nil
 }
+
+type UserServiceIface interface {
+	createUser(username string, email string, password string, isactive bool) error
+	getByUsername(username string) (*models.UserModel, error)
+	getByID(userID string) (*models.UserModel, error)
+	updateEmail(userID string, email string) error
+	updatePassword(userID string, password string) error
+	deactivateUser(userID string) error
+	activateUser(userID string) error
+	deleteUser(userID string) error
+}
+
+var _ UserServiceIface = &userService{}
