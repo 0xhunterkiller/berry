@@ -108,3 +108,7 @@ erDiagram
         timestamp createdat
     }
 ```
+
+---
+TODO:
+Register action, permission, role and resource routes to main
