@@ -26,19 +26,19 @@ func (store *managerStore) deleteRolePermission(rolePermission string) error {
 	return nil
 }
 
-func (store *managerStore) createResourceAction(resource string, action string) (string, error) {
+func (store *managerStore) createInteraction(resource string, action string) (string, error) {
 	return "", nil
 }
 
-func (store *managerStore) deleteResourceAction(resourceAction string) error {
+func (store *managerStore) deleteInteraction(interaction string) error {
 	return nil
 }
 
-func (store *managerStore) createPermissionResourceAction(permission string, resourceAction string) (string, error) {
+func (store *managerStore) createPermissionInteraction(permission string, interaction string) (string, error) {
 	return "", nil
 }
 
-func (store *managerStore) deletePermissionResourceAction(permissionResourceAction string) error {
+func (store *managerStore) deletePermissionInteraction(permissionInteraction string) error {
 	return nil
 }
 
@@ -49,11 +49,11 @@ type ManagerStoreIface interface {
 	createRolePermission(role string, permission string) (string, error)
 	deleteRolePermission(rolePermission string) error
 
-	createResourceAction(resource string, action string) (string, error)
-	deleteResourceAction(resourceAction string) error
+	createInteraction(resource string, action string) (string, error)
+	deleteInteraction(interaction string) error
 
-	createPermissionResourceAction(permission string, resourceAction string) (string, error)
-	deletePermissionResourceAction(permissionResourceAction string) error
+	createPermissionInteraction(permission string, interaction string) (string, error)
+	deletePermissionInteraction(permissionInteraction string) error
 }
 
 var _ ManagerStoreIface = &managerStore{}

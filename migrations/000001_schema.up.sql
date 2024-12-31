@@ -65,24 +65,24 @@ CREATE TABLE roles_permissions (
     CONSTRAINT unique_role_permission UNIQUE (role_id, permission_id)
 );
 
--- ResourceAction table
-CREATE TABLE resources_actions (
+-- Interactions table
+CREATE TABLE interactions (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     resource_id UUID NOT NULL,
     action_id UUID NOT NULL,
     createdat TIMESTAMP DEFAULT NOW() NOT NULL,
     CONSTRAINT fk_resource_id FOREIGN KEY(resource_id) REFERENCES resources(id) ON DELETE CASCADE,
     CONSTRAINT fk_action_id FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE CASCADE,
-    CONSTRAINT unique_resource_action UNIQUE (resource_id, action_id)
+    CONSTRAINT unique_interaction UNIQUE (resource_id, action_id)
 );
 
--- PermissionResourceAction table
-CREATE TABLE permissions_resource_actions (
+-- PermissionInteraction table
+CREATE TABLE permissions_interactions (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    resource_action_id UUID NOT NULL,
+    interaction_id UUID NOT NULL,
     permission_id UUID NOT NULL,
     createdat TIMESTAMP DEFAULT NOW() NOT NULL,
-    CONSTRAINT fk_resource_action_id FOREIGN KEY(resource_action_id) REFERENCES resources_actions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_interaction_id FOREIGN KEY(interaction_id) REFERENCES interactions(id) ON DELETE CASCADE,
     CONSTRAINT fk_permission_id FOREIGN KEY(permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
-    CONSTRAINT unique_permission_resource_action UNIQUE (permission_id, resource_action_id)
+    CONSTRAINT unique_permission_interaction UNIQUE (permission_id, interaction_id)
 );

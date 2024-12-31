@@ -94,17 +94,17 @@ erDiagram
         timestamp createdat
     }
 
-    resources_actions {
+    interactions {
         UUID id PK
         UUID resource_id FK
         UUID action_id FK
         timestamp createdat
     }
 
-    permissions_resource_actions {
+    permissions_interactions {
         UUID id PK
         UUID permission_id FK
-        UUID resource_action_id FK
+        UUID interaction_id FK
         timestamp createdat
     }
 ```
