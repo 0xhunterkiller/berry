@@ -94,7 +94,7 @@ erDiagram
         timestamp createdat
     }
 
-    resource_actions {
+    resources_actions {
         UUID id PK
         UUID resource_id FK
         UUID action_id FK

@@ -33,10 +33,10 @@ func validateAndGeneratePasswordHash(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (us *userService) createUser(username string, email string, password string, isactive bool) error {
+func (us *userService) createUser(username string, email string, password string, isactive bool) (string, error) {
 	hpassword, err := validateAndGeneratePasswordHash(password)
 	if err != nil {
-		return fmt.Errorf("validation error: %w", err)
+		return "", fmt.Errorf("validation error: %w", err)
 	}
 	// setup and validate the users
 	user := models.UserModel{
@@ -47,14 +47,18 @@ func (us *userService) createUser(username string, email string, password string
 	}
 	err = user.Validate()
 	if err != nil {
-		return fmt.Errorf("validation error: %w", err)
+		return "", fmt.Errorf("validation error: %w", err)
 	}
 	// create the user in db
 	err = us.store.createUser(&user)
 	if err != nil {
-		return fmt.Errorf("error while committing user to db: %w", err)
+		return "", fmt.Errorf("error while committing user to db: %w", err)
 	}
-	return nil
+
+	if user.ID == "" {
+		return "", fmt.Errorf("error while committing user to db: %w", err)
+	}
+	return user.ID, nil
 }
 
 func (us *userService) getByUsername(username string) (*models.UserModel, error) {
@@ -129,7 +133,7 @@ func (us *userService) deleteUser(userID string) error {
 }
 
 type UserServiceIface interface {
-	createUser(username string, email string, password string, isactive bool) error
+	createUser(username string, email string, password string, isactive bool) (string, error)
 	getByUsername(username string) (*models.UserModel, error)
 	getByID(userID string) (*models.UserModel, error)
 	updateEmail(userID string, email string) error

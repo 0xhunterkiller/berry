@@ -70,13 +70,13 @@ func (uh *UserHandler) registerUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": err.Error()})
 	}
 
-	err = uh.service.createUser(req.Username, req.Email, req.Password, true)
+	id, err := uh.service.createUser(req.Username, req.Email, req.Password, true)
 	if err != nil {
 		logger.Logger.Error("could not create user due to an error: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "the user was not created"})
 	}
 	logger.Logger.Info("the user was created successfully")
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "the user was created successfully"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"id": id})
 }
 
 // Login User

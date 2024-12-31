@@ -66,7 +66,7 @@ CREATE TABLE roles_permissions (
 );
 
 -- ResourceAction table
-CREATE TABLE resource_actions (
+CREATE TABLE resources_actions (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     resource_id UUID NOT NULL,
     action_id UUID NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE permissions_resource_actions (
     resource_action_id UUID NOT NULL,
     permission_id UUID NOT NULL,
     createdat TIMESTAMP DEFAULT NOW() NOT NULL,
-    CONSTRAINT fk_resource_action_id FOREIGN KEY(resource_action_id) REFERENCES resource_actions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_resource_action_id FOREIGN KEY(resource_action_id) REFERENCES resources_actions(id) ON DELETE CASCADE,
     CONSTRAINT fk_permission_id FOREIGN KEY(permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
     CONSTRAINT unique_permission_resource_action UNIQUE (permission_id, resource_action_id)
 );
