@@ -107,6 +107,18 @@ func main() {
 	uh := handlers.UserHandler
 	uh.RegisterRoutes(app)
 
+	rh := handlers.RoleHandler
+	rh.RegisterRoutes(app)
+
+	ah := handlers.ActionHandler
+	ah.RegisterRoutes(app)
+
+	ph := handlers.PermissionHandler
+	ph.RegisterRoutes(app)
+
+	reh := handlers.ResourceHandler
+	reh.RegisterRoutes(app)
+
 	// Graceful Shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)

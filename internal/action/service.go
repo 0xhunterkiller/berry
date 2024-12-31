@@ -14,7 +14,7 @@ func NewActionService(store ActionStoreIface) ActionServiceIface {
 	return &actionService{store: store}
 }
 
-func (svc *actionService) createAction(name string, description string) error {
+func (svc *actionService) createAction(name string, description string) (string, error) {
 
 	var action models.ActionModel
 
@@ -23,15 +23,19 @@ func (svc *actionService) createAction(name string, description string) error {
 
 	err := action.Validate()
 	if err != nil {
-		return fmt.Errorf("validation error: %w", err)
+		return "", fmt.Errorf("validation error: %w", err)
 	}
 
 	err = svc.store.createAction(&action)
 	if err != nil {
-		return fmt.Errorf("db error: %w", err)
+		return "", fmt.Errorf("db error: %w", err)
 	}
 
-	return nil
+	if action.ID == "" {
+		return "", fmt.Errorf("db error: action id not available")
+	}
+
+	return action.ID, nil
 }
 
 func (svc *actionService) deleteAction(id string) error {
@@ -43,7 +47,7 @@ func (svc *actionService) deleteAction(id string) error {
 }
 
 type ActionServiceIface interface {
-	createAction(name string, description string) error
+	createAction(name string, description string) (string, error)
 	deleteAction(id string) error
 }
 

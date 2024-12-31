@@ -14,7 +14,7 @@ func NewResourceService(store ResourceStoreIface) ResourceServiceIface {
 	return &resourceService{store: store}
 }
 
-func (svc *resourceService) createResource(name string, description string) error {
+func (svc *resourceService) createResource(name string, description string) (string, error) {
 
 	var resource models.ResourceModel
 
@@ -23,15 +23,19 @@ func (svc *resourceService) createResource(name string, description string) erro
 
 	err := resource.Validate()
 	if err != nil {
-		return fmt.Errorf("validation error: %w", err)
+		return "", fmt.Errorf("validation error: %w", err)
 	}
 
 	err = svc.store.createResource(&resource)
 	if err != nil {
-		return fmt.Errorf("db error: %w", err)
+		return "", fmt.Errorf("db error: %w", err)
 	}
 
-	return nil
+	if resource.ID == "" {
+		return "", fmt.Errorf("db error: resource id not available")
+	}
+
+	return resource.ID, nil
 }
 
 func (svc *resourceService) deleteResource(id string) error {
@@ -43,7 +47,7 @@ func (svc *resourceService) deleteResource(id string) error {
 }
 
 type ResourceServiceIface interface {
-	createResource(name string, description string) error
+	createResource(name string, description string) (string, error)
 	deleteResource(id string) error
 }
 

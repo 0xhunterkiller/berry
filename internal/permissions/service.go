@@ -1,4 +1,4 @@
-package permissions
+package permission
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ func NewPermissionService(store PermissionStoreIface) PermissionServiceIface {
 	return &permissionService{store: store}
 }
 
-func (svc *permissionService) createPermission(name string, description string) error {
+func (svc *permissionService) createPermission(name string, description string) (string, error) {
 
 	var permission models.PermissionModel
 
@@ -23,15 +23,19 @@ func (svc *permissionService) createPermission(name string, description string) 
 
 	err := permission.Validate()
 	if err != nil {
-		return fmt.Errorf("validation error: %w", err)
+		return "", fmt.Errorf("validation error: %w", err)
 	}
 
 	err = svc.store.createPermission(&permission)
 	if err != nil {
-		return fmt.Errorf("db error: %w", err)
+		return "", fmt.Errorf("db error: %w", err)
 	}
 
-	return nil
+	if permission.ID == "" {
+		return "", fmt.Errorf("db error: permission id not available")
+	}
+
+	return permission.ID, nil
 }
 
 func (svc *permissionService) deletePermission(id string) error {
@@ -43,7 +47,7 @@ func (svc *permissionService) deletePermission(id string) error {
 }
 
 type PermissionServiceIface interface {
-	createPermission(name string, description string) error
+	createPermission(name string, description string) (string, error)
 	deletePermission(id string) error
 }
 

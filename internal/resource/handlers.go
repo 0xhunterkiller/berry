@@ -1,10 +1,10 @@
 package resource
 
 import (
-	"time"
-
+	"github.com/0xhunterkiller/berry/internal/helpers"
 	"github.com/0xhunterkiller/berry/internal/middleware"
 	"github.com/0xhunterkiller/berry/pkg/logger"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -27,15 +27,9 @@ type createReq struct {
 }
 
 func (reh *ResourceHandler) CreateResource(c *fiber.Ctx) error {
-	if !c.Locals("chocolatedip").(bool) {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
+	if _, ok := helpers.CheckAuthentication(c); !ok {
+		return helpers.ForbiddenMsg(c)
 	}
-
-	userID := c.Locals("userid").(string)
-	if userID == "" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
-	}
-
 	var req *createReq
 	err := c.BodyParser(&req)
 	if err != nil {
@@ -43,26 +37,28 @@ func (reh *ResourceHandler) CreateResource(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "error while parsing your request"})
 	}
 
-	err = reh.service.createResource(req.Name, req.Description)
+	v := validator.New()
+	err = v.Struct(req)
+	if err != nil {
+		logger.Logger.Error(err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "error while parsing your request"})
+	}
+
+	id, err := reh.service.createResource(req.Name, req.Description)
 	if err != nil {
 		logger.Logger.Error(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "error while creating resource"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "created resource"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"id": id})
 }
 
 func (reh *ResourceHandler) DeleteResource(c *fiber.Ctx) error {
-	if !c.Locals("chocolatedip").(bool) {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
+	if _, ok := helpers.CheckAuthentication(c); !ok {
+		return helpers.ForbiddenMsg(c)
 	}
 
-	userID := c.Locals("userid").(string)
-	if userID == "" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
-	}
-
-	delID := c.Params("id")
+	delID := c.Queries()["id"]
 	if delID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "'id' param not found"})
 	}

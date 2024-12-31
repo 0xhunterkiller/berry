@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/0xhunterkiller/berry/internal/helpers"
 	"github.com/0xhunterkiller/berry/internal/middleware"
 	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/0xhunterkiller/berry/pkg/jwtutil"
@@ -33,10 +34,6 @@ func (uh *UserHandler) RegisterRoutes(app *fiber.App) {
 	app.Patch("/user/deactivate", uh.deactivateUser)
 	app.Patch("/user/activate", uh.activateUser)
 	app.Delete("/user", uh.deleteUser)
-}
-
-func forbiddenMsg(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"timestamp": time.Now(), "message": "you are not authenticated!"})
 }
 
 // Am I Authenticated
@@ -138,13 +135,9 @@ type updateEmailRequest struct {
 }
 
 func (uh *UserHandler) updateEmail(c *fiber.Ctx) error {
-	if !c.Locals("chocolatedip").(bool) {
-		return forbiddenMsg(c)
-	}
-
-	userID := c.Locals("userid").(string)
-	if userID == "" {
-		return forbiddenMsg(c)
+	userID, ok := helpers.CheckAuthentication(c)
+	if !ok {
+		return helpers.ForbiddenMsg(c)
 	}
 
 	var uer updateEmailRequest
@@ -174,13 +167,9 @@ type updatePasswordRequest struct {
 }
 
 func (uh *UserHandler) updatePassword(c *fiber.Ctx) error {
-	if !c.Locals("chocolatedip").(bool) {
-		return forbiddenMsg(c)
-	}
-
-	userID := c.Locals("userid").(string)
-	if userID == "" {
-		return forbiddenMsg(c)
+	userID, ok := helpers.CheckAuthentication(c)
+	if !ok {
+		return helpers.ForbiddenMsg(c)
 	}
 
 	var upr updatePasswordRequest
@@ -205,13 +194,9 @@ func (uh *UserHandler) updatePassword(c *fiber.Ctx) error {
 }
 
 func (uh *UserHandler) deactivateUser(c *fiber.Ctx) error {
-	if !c.Locals("chocolatedip").(bool) {
-		return forbiddenMsg(c)
-	}
-
-	userID := c.Locals("userid").(string)
-	if userID == "" {
-		return forbiddenMsg(c)
+	userID, ok := helpers.CheckAuthentication(c)
+	if !ok {
+		return helpers.ForbiddenMsg(c)
 	}
 
 	err := uh.service.deactivateUser(userID)
@@ -223,13 +208,9 @@ func (uh *UserHandler) deactivateUser(c *fiber.Ctx) error {
 }
 
 func (uh *UserHandler) activateUser(c *fiber.Ctx) error {
-	if !c.Locals("chocolatedip").(bool) {
-		return forbiddenMsg(c)
-	}
-
-	userID := c.Locals("userid").(string)
-	if userID == "" {
-		return forbiddenMsg(c)
+	userID, ok := helpers.CheckAuthentication(c)
+	if !ok {
+		return helpers.ForbiddenMsg(c)
 	}
 
 	err := uh.service.activateUser(userID)
@@ -241,13 +222,9 @@ func (uh *UserHandler) activateUser(c *fiber.Ctx) error {
 }
 
 func (uh *UserHandler) deleteUser(c *fiber.Ctx) error {
-	if !c.Locals("chocolatedip").(bool) {
-		return forbiddenMsg(c)
-	}
-
-	userID := c.Locals("userid").(string)
-	if userID == "" {
-		return forbiddenMsg(c)
+	userID, ok := helpers.CheckAuthentication(c)
+	if !ok {
+		return helpers.ForbiddenMsg(c)
 	}
 
 	err := uh.service.deleteUser(userID)

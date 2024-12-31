@@ -14,7 +14,7 @@ func NewRoleService(store RoleStoreIface) RoleServiceIface {
 	return &roleService{store: store}
 }
 
-func (svc *roleService) createRole(name string, description string) error {
+func (svc *roleService) createRole(name string, description string) (string, error) {
 
 	var role models.RoleModel
 
@@ -23,15 +23,19 @@ func (svc *roleService) createRole(name string, description string) error {
 
 	err := role.Validate()
 	if err != nil {
-		return fmt.Errorf("validation error: %w", err)
+		return "", fmt.Errorf("validation error: %w", err)
 	}
 
 	err = svc.store.createRole(&role)
 	if err != nil {
-		return fmt.Errorf("db error: %w", err)
+		return "", fmt.Errorf("db error: %w", err)
 	}
 
-	return nil
+	if role.ID == "" {
+		return "", fmt.Errorf("db error: role id is not available")
+	}
+
+	return role.ID, nil
 }
 
 func (svc *roleService) deleteRole(id string) error {
@@ -43,7 +47,7 @@ func (svc *roleService) deleteRole(id string) error {
 }
 
 type RoleServiceIface interface {
-	createRole(name string, description string) error
+	createRole(name string, description string) (string, error)
 	deleteRole(id string) error
 }
 
