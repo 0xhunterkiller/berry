@@ -15,7 +15,7 @@ func NewManagerStore(db *sqlx.DB) ManagerStoreIface {
 func (store *managerStore) createUserRole(user string, role string) (string, error) {
 	var id string
 	query := `INSERT INTO users_roles (user_id, role_id) VALUES ($1, $2) RETURNING id`
-	err := store.db.QueryRowx(query, user, role).Scan(id)
+	err := store.db.QueryRowx(query, user, role).Scan(&id)
 	if err != nil {
 		return "", err
 	}
@@ -34,7 +34,7 @@ func (store *managerStore) deleteUserRole(userRole string) error {
 func (store *managerStore) createRolePermission(role string, permission string) (string, error) {
 	var id string
 	query := `INSERT INTO roles_permissions (role_id, permission_id) VALUES ($1, $2) RETURNING id`
-	err := store.db.QueryRowx(query, role, permission).Scan(id)
+	err := store.db.QueryRowx(query, role, permission).Scan(&id)
 	if err != nil {
 		return "", err
 	}
@@ -53,7 +53,7 @@ func (store *managerStore) deleteRolePermission(rolePermission string) error {
 func (store *managerStore) createInteraction(resource string, action string) (string, error) {
 	var id string
 	query := `INSERT INTO interactions (resource_id, action_id) VALUES ($1, $2) RETURNING id`
-	err := store.db.QueryRowx(query, resource, action).Scan(id)
+	err := store.db.QueryRowx(query, resource, action).Scan(&id)
 	if err != nil {
 		return "", err
 	}
@@ -72,7 +72,7 @@ func (store *managerStore) deleteInteraction(interaction string) error {
 func (store *managerStore) createPermissionInteraction(permission string, interaction string) (string, error) {
 	var id string
 	query := `INSERT INTO permissions_interactions (permission_id, interaction_id) VALUES ($1, $2) RETURNING id`
-	err := store.db.QueryRowx(query, permission, interaction).Scan(id)
+	err := store.db.QueryRowx(query, permission, interaction).Scan(&id)
 	if err != nil {
 		return "", err
 	}

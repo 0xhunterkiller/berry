@@ -136,8 +136,6 @@ func main() {
 	man := handlers.ManagerHandler
 	man.RegisterRoutes(app)
 
-	fmt.Println(app)
-
 	// Graceful Shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
