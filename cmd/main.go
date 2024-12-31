@@ -101,8 +101,10 @@ func main() {
 
 	err = appinit.MakeRoot(db, adminUserID, adminRoleID)
 	if err != nil {
-		logger.Logger.Info("berryroot is now root")
+		logger.Logger.Errorf("berryroot is not root, role couldn't be assigned: %v", err.Error())
 	}
+	logger.Logger.Info("berryroot is now root")
+
 	// Prepare an injection
 	inj := &models.Deps{DB: db}
 
