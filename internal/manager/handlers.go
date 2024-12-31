@@ -17,7 +17,7 @@ func NewManagerHandler(service ManagerServiceIface) ManagerHandlerIface {
 }
 
 func (mh *ManagerHandler) RegisterRoutes(app *fiber.App) {
-	app.Use(middleware.AuthMiddleware)
+	app.Use("/manage", middleware.AuthMiddleware)
 
 	app.Get("/manage/create-user-role", mh.createUserRole)
 	app.Get("/manage/delete-user-role", mh.deleteUserRole)

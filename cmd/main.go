@@ -19,7 +19,6 @@ import (
 )
 
 func gracefulShutdown(app *fiber.App, db *sqlx.DB) {
-
 	if app != nil {
 		err := app.Shutdown()
 		if err != nil {
@@ -29,6 +28,7 @@ func gracefulShutdown(app *fiber.App, db *sqlx.DB) {
 	if db != nil {
 		dbpsql.CloseDBConn(db)
 	}
+	os.Exit(1)
 }
 
 func main() {
@@ -89,6 +89,20 @@ func main() {
 		gracefulShutdown(app, db)
 	}
 
+	adminRoleID, err := appinit.CreateRootRole(db)
+	if err == nil {
+		if adminRoleID != "" {
+			logger.Logger.Info("root role was successfully created")
+		}
+	} else {
+		logger.Logger.Errorf("root role was not created: %v", err.Error())
+		gracefulShutdown(app, db)
+	}
+
+	err = appinit.MakeRoot(db, adminUserID, adminRoleID)
+	if err != nil {
+		logger.Logger.Info("berryroot is now root")
+	}
 	// Prepare an injection
 	inj := &models.Deps{DB: db}
 
@@ -118,6 +132,11 @@ func main() {
 
 	reh := handlers.ResourceHandler
 	reh.RegisterRoutes(app)
+
+	man := handlers.ManagerHandler
+	man.RegisterRoutes(app)
+
+	fmt.Println(app)
 
 	// Graceful Shutdown
 	c := make(chan os.Signal, 1)

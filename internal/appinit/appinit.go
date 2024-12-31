@@ -2,6 +2,7 @@ package appinit
 
 import (
 	"github.com/0xhunterkiller/berry/internal/action"
+	"github.com/0xhunterkiller/berry/internal/manager"
 	"github.com/0xhunterkiller/berry/internal/models"
 	permission "github.com/0xhunterkiller/berry/internal/permissions"
 	"github.com/0xhunterkiller/berry/internal/resource"
@@ -15,6 +16,7 @@ type Services struct {
 	ActionService     action.ActionServiceIface
 	PermissionService permission.PermissionServiceIface
 	ResourceService   resource.ResourceServiceIface
+	ManagerService    manager.ManagerServiceIface
 }
 
 func initializeServices(inj *models.Deps) *Services {
@@ -23,6 +25,7 @@ func initializeServices(inj *models.Deps) *Services {
 	actionStore := action.NewActionStore(inj.DB)
 	permissionStore := permission.NewPermissionStore(inj.DB)
 	resourceStore := resource.NewResourceStore(inj.DB)
+	managerStore := manager.NewManagerStore(inj.DB)
 
 	return &Services{
 		UserService:       user.NewUserService(userStore),
@@ -30,6 +33,7 @@ func initializeServices(inj *models.Deps) *Services {
 		ActionService:     action.NewActionService(actionStore),
 		PermissionService: permission.NewPermissionService(permissionStore),
 		ResourceService:   resource.NewResourceService(resourceStore),
+		ManagerService:    manager.NewManagerService(managerStore),
 	}
 }
 
@@ -39,6 +43,7 @@ type Handlers struct {
 	ActionHandler     action.ActionHandlerIface
 	PermissionHandler permission.PermissionHandlerIface
 	ResourceHandler   resource.ResourceHandlerIface
+	ManagerHandler    manager.ManagerHandlerIface
 }
 
 func initializeHandlers(services *Services) *Handlers {
@@ -48,6 +53,7 @@ func initializeHandlers(services *Services) *Handlers {
 		ActionHandler:     action.NewActionHandler(services.ActionService),
 		PermissionHandler: permission.NewPermissionHandler(services.PermissionService),
 		ResourceHandler:   resource.NewResourceHandler(services.ResourceService),
+		ManagerHandler:    manager.NewManagerHandler(services.ManagerService),
 	}
 }
 

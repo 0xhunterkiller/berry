@@ -8,7 +8,11 @@ import (
 )
 
 func unauthorizedResponse(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+}
+
+func needSuperUserAccess(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "you need super user access to perform this action"})
 }
 
 func AuthMiddleware(c *fiber.Ctx) error {
@@ -26,7 +30,7 @@ func AuthMiddleware(c *fiber.Ctx) error {
 			return unauthorizedResponse(c)
 		}
 		userID, ok := jwtutil.GetFromClaims(token, "userid")
-		if !ok {
+		if !ok && userID != "" {
 			return unauthorizedResponse(c)
 		}
 		c.Locals("userid", userID)
@@ -35,3 +39,11 @@ func AuthMiddleware(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized, Auth Header Format is `Authorization: Bearer aabbxxyy1122`"})
 }
+
+// Must be used after auth check only
+// func SuperUserCheck(c *fiber.Ctx) error {
+// 	id := c.Locals("userid").(string)
+// 	if id == "" {
+
+// 	}
+// }

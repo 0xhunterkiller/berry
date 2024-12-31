@@ -31,3 +31,25 @@ func CreateAdminUser(db *sqlx.DB, email string, password string) (string, error)
 	}
 	return userid, nil
 }
+
+func CreateRootRole(db *sqlx.DB) (string, error) {
+	query := `INSERT INTO roles (name, description) VALUES ($1, $2) RETURNING id`
+
+	var id string
+	err := db.QueryRowx(query, "root", "this soul will have all access there is").Scan(id)
+	if err != nil {
+		return "", err
+	}
+	return id, nil
+}
+
+func MakeRoot(db *sqlx.DB, adminUserID string, adminRoleID string) error {
+	query := `INSERT INTO users_roles (user_id, role_id) VALUES ($1, $2) RETURNING id`
+
+	var id string
+	err := db.QueryRowx(query, adminUserID, adminRoleID).Scan(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
