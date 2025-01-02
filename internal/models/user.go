@@ -14,12 +14,12 @@ type UserModel struct {
 	// System Generated
 	CreatedAt time.Time `json:"createdat" db:"createdat"`
 	UpdatedAt time.Time `json:"updatedat" db:"updatedat"`
-	ID        string    `json:"userid" db:"userid"`
+	ID        string    `json:"id" db:"id"`
 
 	// User Input
-	Username string `json:"username" db:"username" validate:"required"`
+	Username string `json:"name" db:"name" validate:"required"`
 	Email    string `json:"email" db:"email" validate:"required,email"`
-	Password string `json:"hpassword" db:"hpassword" validate:"required"`
+	Password string `json:"password" db:"password" validate:"required"`
 	IsActive bool   `json:"isactive" db:"isactive" validate:"required"`
 }
 

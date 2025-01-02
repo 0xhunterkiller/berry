@@ -23,12 +23,12 @@ func (svc *resourceService) createResource(name string, description string) (str
 
 	err := resource.Validate()
 	if err != nil {
-		return "", fmt.Errorf("validation error: %w", err)
+		return "", err
 	}
 
 	err = svc.store.createResource(&resource)
 	if err != nil {
-		return "", fmt.Errorf("db error: %w", err)
+		return "", err
 	}
 
 	if resource.ID == "" {
@@ -41,7 +41,7 @@ func (svc *resourceService) createResource(name string, description string) (str
 func (svc *resourceService) deleteResource(id string) error {
 	err := svc.store.deleteResource(id)
 	if err != nil {
-		return fmt.Errorf("db error: %w", err)
+		return err
 	}
 	return nil
 }

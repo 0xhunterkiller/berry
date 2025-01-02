@@ -43,10 +43,10 @@ erDiagram
     }
 
     users {
-        UUID userid PK
-        string username
+        UUID id PK
+        string name
         string email
-        string hpassword
+        string password
         boolean isactive
         timestamp createdat
         timestamp updatedat

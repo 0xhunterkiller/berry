@@ -1,8 +1,6 @@
 package role
 
 import (
-	"fmt"
-
 	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -24,7 +22,7 @@ func (store *roleStore) createRole(role *models.RoleModel) error {
 	`
 	err := store.db.QueryRowx(query, role.Name, role.Description).Scan(&role.ID, &role.CreatedAt)
 	if err != nil {
-		return fmt.Errorf("failed to create user: %w", err)
+		return err
 	}
 	return nil
 }
@@ -33,7 +31,7 @@ func (store *roleStore) deleteRole(id string) error {
 	query := `DELETE FROM roles WHERE id = $1`
 	_, err := store.db.Exec(query, id)
 	if err != nil {
-		return fmt.Errorf("failed to delete user: %w", err)
+		return err
 	}
 	return nil
 }

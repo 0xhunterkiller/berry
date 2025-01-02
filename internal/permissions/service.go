@@ -23,12 +23,12 @@ func (svc *permissionService) createPermission(name string, description string) 
 
 	err := permission.Validate()
 	if err != nil {
-		return "", fmt.Errorf("validation error: %w", err)
+		return "", err
 	}
 
 	err = svc.store.createPermission(&permission)
 	if err != nil {
-		return "", fmt.Errorf("db error: %w", err)
+		return "", err
 	}
 
 	if permission.ID == "" {
@@ -41,7 +41,7 @@ func (svc *permissionService) createPermission(name string, description string) 
 func (svc *permissionService) deletePermission(id string) error {
 	err := svc.store.deletePermission(id)
 	if err != nil {
-		return fmt.Errorf("db error: %w", err)
+		return err
 	}
 	return nil
 }

@@ -1,8 +1,6 @@
 package resource
 
 import (
-	"fmt"
-
 	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -24,7 +22,7 @@ func (store *resourceStore) createResource(resource *models.ResourceModel) error
 	`
 	err := store.db.QueryRowx(query, resource.Name, resource.Description).Scan(&resource.ID, &resource.CreatedAt)
 	if err != nil {
-		return fmt.Errorf("failed to create user: %w", err)
+		return err
 	}
 	return nil
 }
@@ -33,7 +31,7 @@ func (store *resourceStore) deleteResource(id string) error {
 	query := `DELETE FROM resources WHERE id = $1`
 	_, err := store.db.Exec(query, id)
 	if err != nil {
-		return fmt.Errorf("failed to delete user: %w", err)
+		return err
 	}
 	return nil
 }

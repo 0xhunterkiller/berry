@@ -23,12 +23,12 @@ func (svc *actionService) createAction(name string, description string) (string,
 
 	err := action.Validate()
 	if err != nil {
-		return "", fmt.Errorf("validation error: %w", err)
+		return "", err
 	}
 
 	err = svc.store.createAction(&action)
 	if err != nil {
-		return "", fmt.Errorf("db error: %w", err)
+		return "", err
 	}
 
 	if action.ID == "" {
@@ -41,7 +41,7 @@ func (svc *actionService) createAction(name string, description string) (string,
 func (svc *actionService) deleteAction(id string) error {
 	err := svc.store.deleteAction(id)
 	if err != nil {
-		return fmt.Errorf("db error: %w", err)
+		return err
 	}
 	return nil
 }

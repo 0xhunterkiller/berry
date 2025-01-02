@@ -34,7 +34,7 @@ func validateAndGeneratePasswordHash(password string) (string, error) {
 }
 
 func (us *userService) createUser(username string, email string, password string, isactive bool) (string, error) {
-	hpassword, err := validateAndGeneratePasswordHash(password)
+	password, err := validateAndGeneratePasswordHash(password)
 	if err != nil {
 		return "", fmt.Errorf("validation error: %w", err)
 	}
@@ -42,7 +42,7 @@ func (us *userService) createUser(username string, email string, password string
 	user := models.UserModel{
 		Username: username,
 		Email:    email,
-		Password: hpassword,
+		Password: password,
 		IsActive: isactive,
 	}
 	err = user.Validate()
@@ -69,15 +69,15 @@ func (us *userService) getByUsername(username string) (*models.UserModel, error)
 	return user, nil
 }
 
-func (us *userService) getByID(userID string) (*models.UserModel, error) {
-	user, err := us.store.getByID(userID)
+func (us *userService) getByID(id string) (*models.UserModel, error) {
+	user, err := us.store.getByID(id)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (us *userService) updateEmail(userID string, email string) error {
+func (us *userService) updateEmail(id string, email string) error {
 
 	v := validator.New()
 	err := v.Var(email, "email")
@@ -85,7 +85,7 @@ func (us *userService) updateEmail(userID string, email string) error {
 		return fmt.Errorf("error validating email: %w", err)
 	}
 
-	err = us.store.updateByID(userID, "email", email)
+	err = us.store.updateByID(id, "email", email)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
@@ -93,14 +93,14 @@ func (us *userService) updateEmail(userID string, email string) error {
 	return nil
 }
 
-func (us *userService) updatePassword(userID string, password string) error {
+func (us *userService) updatePassword(id string, password string) error {
 
-	hpassword, err := validateAndGeneratePasswordHash(password)
+	password, err := validateAndGeneratePasswordHash(password)
 	if err != nil {
 		return fmt.Errorf("validation error: %w", err)
 	}
 
-	err = us.store.updateByID(userID, "hpassword", hpassword)
+	err = us.store.updateByID(id, "password", password)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
@@ -108,24 +108,24 @@ func (us *userService) updatePassword(userID string, password string) error {
 	return nil
 }
 
-func (us *userService) deactivateUser(userID string) error {
-	err := us.store.activationToggleByID(userID, false)
+func (us *userService) deactivateUser(id string) error {
+	err := us.store.activationToggleByID(id, false)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
 	return nil
 }
 
-func (us *userService) activateUser(userID string) error {
-	err := us.store.activationToggleByID(userID, true)
+func (us *userService) activateUser(id string) error {
+	err := us.store.activationToggleByID(id, true)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
 	return nil
 }
 
-func (us *userService) deleteUser(userID string) error {
-	err := us.store.deleteByID(userID)
+func (us *userService) deleteUser(id string) error {
+	err := us.store.deleteByID(id)
 	if err != nil {
 		return fmt.Errorf("error while committing user to db: %w", err)
 	}
@@ -135,12 +135,12 @@ func (us *userService) deleteUser(userID string) error {
 type UserServiceIface interface {
 	createUser(username string, email string, password string, isactive bool) (string, error)
 	getByUsername(username string) (*models.UserModel, error)
-	getByID(userID string) (*models.UserModel, error)
-	updateEmail(userID string, email string) error
-	updatePassword(userID string, password string) error
-	deactivateUser(userID string) error
-	activateUser(userID string) error
-	deleteUser(userID string) error
+	getByID(id string) (*models.UserModel, error)
+	updateEmail(id string, email string) error
+	updatePassword(id string, password string) error
+	deactivateUser(id string) error
+	activateUser(id string) error
+	deleteUser(id string) error
 }
 
 var _ UserServiceIface = &userService{}

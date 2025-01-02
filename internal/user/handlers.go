@@ -135,7 +135,7 @@ type updateEmailRequest struct {
 }
 
 func (uh *UserHandler) updateEmail(c *fiber.Ctx) error {
-	userID, ok := helpers.CheckAuthentication(c)
+	id, ok := helpers.CheckAuthentication(c)
 	if !ok {
 		return helpers.ForbiddenMsg(c)
 	}
@@ -152,7 +152,7 @@ func (uh *UserHandler) updateEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": err.Error()})
 	}
 
-	err := uh.service.updateEmail(userID, uer.Email)
+	err := uh.service.updateEmail(id, uer.Email)
 	if err != nil {
 		logger.Logger.Error("an error occured while updating email: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
@@ -167,7 +167,7 @@ type updatePasswordRequest struct {
 }
 
 func (uh *UserHandler) updatePassword(c *fiber.Ctx) error {
-	userID, ok := helpers.CheckAuthentication(c)
+	id, ok := helpers.CheckAuthentication(c)
 	if !ok {
 		return helpers.ForbiddenMsg(c)
 	}
@@ -184,7 +184,7 @@ func (uh *UserHandler) updatePassword(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": err.Error()})
 	}
 
-	err := uh.service.updatePassword(userID, upr.Password)
+	err := uh.service.updatePassword(id, upr.Password)
 	if err != nil {
 		logger.Logger.Error("an error occured while updating password: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
@@ -194,12 +194,12 @@ func (uh *UserHandler) updatePassword(c *fiber.Ctx) error {
 }
 
 func (uh *UserHandler) deactivateUser(c *fiber.Ctx) error {
-	userID, ok := helpers.CheckAuthentication(c)
+	id, ok := helpers.CheckAuthentication(c)
 	if !ok {
 		return helpers.ForbiddenMsg(c)
 	}
 
-	err := uh.service.deactivateUser(userID)
+	err := uh.service.deactivateUser(id)
 	if err != nil {
 		logger.Logger.Error("an error occured while deactivating user: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
@@ -208,12 +208,12 @@ func (uh *UserHandler) deactivateUser(c *fiber.Ctx) error {
 }
 
 func (uh *UserHandler) activateUser(c *fiber.Ctx) error {
-	userID, ok := helpers.CheckAuthentication(c)
+	id, ok := helpers.CheckAuthentication(c)
 	if !ok {
 		return helpers.ForbiddenMsg(c)
 	}
 
-	err := uh.service.activateUser(userID)
+	err := uh.service.activateUser(id)
 	if err != nil {
 		logger.Logger.Error("an error occured while activating user: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})
@@ -222,12 +222,12 @@ func (uh *UserHandler) activateUser(c *fiber.Ctx) error {
 }
 
 func (uh *UserHandler) deleteUser(c *fiber.Ctx) error {
-	userID, ok := helpers.CheckAuthentication(c)
+	id, ok := helpers.CheckAuthentication(c)
 	if !ok {
 		return helpers.ForbiddenMsg(c)
 	}
 
-	err := uh.service.deleteUser(userID)
+	err := uh.service.deleteUser(id)
 	if err != nil {
 		logger.Logger.Error("an error occured while deleting user: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "an error occured"})

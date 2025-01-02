@@ -1,8 +1,6 @@
 package action
 
 import (
-	"fmt"
-
 	"github.com/0xhunterkiller/berry/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -24,7 +22,7 @@ func (store *actionStore) createAction(action *models.ActionModel) error {
 	`
 	err := store.db.QueryRowx(query, action.Name, action.Description).Scan(&action.ID, &action.CreatedAt)
 	if err != nil {
-		return fmt.Errorf("failed to create user: %w", err)
+		return err
 	}
 	return nil
 }
@@ -33,7 +31,7 @@ func (store *actionStore) deleteAction(id string) error {
 	query := `DELETE FROM actions WHERE id = $1`
 	_, err := store.db.Exec(query, id)
 	if err != nil {
-		return fmt.Errorf("failed to delete user: %w", err)
+		return err
 	}
 	return nil
 }

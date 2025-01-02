@@ -2,10 +2,10 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Users table
 CREATE TABLE users (
-    userid UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    username VARCHAR(255) UNIQUE NOT NULL,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    hpassword TEXT NOT NULL,
+    password TEXT NOT NULL,
     isactive BOOLEAN DEFAULT TRUE,
     createdat TIMESTAMP DEFAULT NOW() NOT NULL,
     updatedat TIMESTAMP DEFAULT NOW() NOT NULL
@@ -49,7 +49,7 @@ CREATE TABLE users_roles (
     role_id UUID NOT NULL,
     user_id UUID NOT NULL,
     createdat TIMESTAMP DEFAULT NOW() NOT NULL,
-    CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES users(userid) ON DELETE CASCADE,
+    CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_role_id FOREIGN KEY(role_id) REFERENCES roles(id) ON DELETE CASCADE,
     CONSTRAINT unique_user_role UNIQUE (user_id, role_id)
 );

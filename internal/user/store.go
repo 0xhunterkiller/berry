@@ -18,53 +18,53 @@ func NewUserStore(db *sqlx.DB) UserStoreIface {
 
 func (store *userStore) createUser(user *models.UserModel) error {
 	query := `
-		INSERT INTO users (username, email, hpassword, isactive)
+		INSERT INTO users (name, email, password, isactive)
 		VALUES ($1, $2, $3, $4)
-		RETURNING userid, createdat, updatedat
+		RETURNING id, createdat, updatedat
 	`
 	err := store.db.QueryRowx(query, user.Username, user.Email, user.Password, user.IsActive).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
-		return fmt.Errorf("failed to create user: %w", err)
+		return err
 	}
 	return nil
 }
 
-func (store *userStore) getByID(userid string) (*models.UserModel, error) {
+func (store *userStore) getByID(id string) (*models.UserModel, error) {
 	query := `
-		SELECT userid, username, email, hpassword, isactive, createdat, updatedat
-		FROM users WHERE userid = $1
+		SELECT id, name, email, password, isactive, createdat, updatedat
+		FROM users WHERE id = $1
 	`
 	var user models.UserModel
-	err := store.db.Get(&user, query, userid)
+	err := store.db.Get(&user, query, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("user not found")
 		}
-		return nil, fmt.Errorf("failed to get user: %w", err)
+		return nil, err
 	}
 	return &user, nil
 }
 
-func (store *userStore) getByUsername(username string) (*models.UserModel, error) {
+func (store *userStore) getByUsername(name string) (*models.UserModel, error) {
 	query := `
-		SELECT userid, username, email, hpassword, isactive, createdat, updatedat
-		FROM users WHERE username = $1
+		SELECT id, name, email, password, isactive, createdat, updatedat
+		FROM users WHERE name = $1
 	`
 	var user models.UserModel
-	err := store.db.Get(&user, query, username)
+	err := store.db.Get(&user, query, name)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("user not found")
 		}
-		return nil, fmt.Errorf("failed to get user: %w", err)
+		return nil, err
 	}
 	return &user, nil
 }
 
-func (store *userStore) updateByID(userid string, col string, val string) error {
+func (store *userStore) updateByID(id string, col string, val string) error {
 	columnQueries := map[string]string{
-		"email":     `UPDATE users SET email = $1, updatedat = NOW() WHERE userid = $2`,
-		"hpassword": `UPDATE users SET hpassword = $1, updatedat = NOW() WHERE userid = $2`,
+		"email":    `UPDATE users SET email = $1, updatedat = NOW() WHERE id = $2`,
+		"password": `UPDATE users SET password = $1, updatedat = NOW() WHERE id = $2`,
 	}
 
 	query, exists := columnQueries[col]
@@ -72,9 +72,9 @@ func (store *userStore) updateByID(userid string, col string, val string) error 
 		return fmt.Errorf("invalid column specified for update: %s", col)
 	}
 
-	res, err := store.db.Exec(query, val, userid)
+	res, err := store.db.Exec(query, val, id)
 	if err != nil {
-		return fmt.Errorf("failed to update user: %w", err)
+		return err
 	}
 	rowsAffected, _ := res.RowsAffected()
 	if rowsAffected == 0 {
@@ -83,12 +83,12 @@ func (store *userStore) updateByID(userid string, col string, val string) error 
 	return nil
 }
 
-func (store *userStore) activationToggleByID(userid string, op bool) error {
-	query := `UPDATE users SET isactive = $1, updatedat = NOW() WHERE userid = $2`
+func (store *userStore) activationToggleByID(id string, op bool) error {
+	query := `UPDATE users SET isactive = $1, updatedat = NOW() WHERE id = $2`
 
-	res, err := store.db.Exec(query, op, userid)
+	res, err := store.db.Exec(query, op, id)
 	if err != nil {
-		return fmt.Errorf("failed to update user: %w", err)
+		return err
 	}
 	rowsAffected, _ := res.RowsAffected()
 	if rowsAffected == 0 {
@@ -97,22 +97,22 @@ func (store *userStore) activationToggleByID(userid string, op bool) error {
 	return nil
 }
 
-func (store *userStore) deleteByID(userid string) error {
-	query := `DELETE FROM users WHERE userid = $1`
-	_, err := store.db.Exec(query, userid)
+func (store *userStore) deleteByID(id string) error {
+	query := `DELETE FROM users WHERE id = $1`
+	_, err := store.db.Exec(query, id)
 	if err != nil {
-		return fmt.Errorf("failed to delete user: %w", err)
+		return err
 	}
 	return nil
 }
 
 type UserStoreIface interface {
 	createUser(user *models.UserModel) error
-	getByID(userid string) (*models.UserModel, error)
-	getByUsername(username string) (*models.UserModel, error)
-	updateByID(userid string, col string, val string) error
-	activationToggleByID(userid string, op bool) error
-	deleteByID(userid string) error
+	getByID(id string) (*models.UserModel, error)
+	getByUsername(name string) (*models.UserModel, error)
+	updateByID(id string, col string, val string) error
+	activationToggleByID(id string, op bool) error
+	deleteByID(id string) error
 }
 
 var _ UserStoreIface = &userStore{}

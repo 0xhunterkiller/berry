@@ -23,12 +23,12 @@ func (svc *roleService) createRole(name string, description string) (string, err
 
 	err := role.Validate()
 	if err != nil {
-		return "", fmt.Errorf("validation error: %w", err)
+		return "", err
 	}
 
 	err = svc.store.createRole(&role)
 	if err != nil {
-		return "", fmt.Errorf("db error: %w", err)
+		return "", err
 	}
 
 	if role.ID == "" {
@@ -41,7 +41,7 @@ func (svc *roleService) createRole(name string, description string) (string, err
 func (svc *roleService) deleteRole(id string) error {
 	err := svc.store.deleteRole(id)
 	if err != nil {
-		return fmt.Errorf("db error: %w", err)
+		return err
 	}
 	return nil
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func CreateAdminUser(db *sqlx.DB, email string, password string) (string, error) {
-	query := `INSERT INTO users (username, email, hpassword, isactive) VALUES ($1, $2, $3, $4) RETURNING userid`
+	query := `INSERT INTO users (name, email, password, isactive) VALUES ($1, $2, $3, $4) RETURNING id`
 
 	// validatePassword checks for password complexity.
 	const minEntropyBits = 120
