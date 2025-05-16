@@ -1,0 +1,11 @@
+meta {
+  name: get_ping
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:9091/v1/utils/ping
+  body: none
+  auth: inherit
+}

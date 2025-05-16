@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "bruberry",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

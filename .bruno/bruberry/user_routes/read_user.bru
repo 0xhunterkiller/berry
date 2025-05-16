@@ -1,0 +1,11 @@
+meta {
+  name: read_user
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:9091/v1/users/read
+  body: none
+  auth: inherit
+}
