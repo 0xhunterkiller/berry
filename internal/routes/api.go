@@ -16,9 +16,7 @@ func getRoutes() {
 	v1 := router.Group("/v1")
 	addUserRoutes(v1)
 	addUtilRoutes(v1)
-	addActionRoutes(v1)
-	addPermissionRoutes(v1)
+	addVerbRoutes(v1)
 	addRoleRoutes(v1)
 	addResourceRoutes(v1)
-	addResourceTypeRoutes(v1)
 }

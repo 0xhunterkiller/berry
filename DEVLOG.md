@@ -9,3 +9,6 @@ I finished doing a basic db design. We are gonna go with an API based model, wit
 Been busy with work the past few days, found some time to continue. I designed the system today, a decision tree based RBAC system, the decision tree reduces the time taken to resolve access questions like..."Can X access Y?". Berry will only respond in boolean, to enhance security. Enough with the yapping, lets start writing some code. Setup for the project was done, create dummy api endpoints, that dont do anything for now.
 Thought about what to use as an example for explaining and testing. An Army, in various situations Army has RBAC, but in certain situations there is also a small amount of ABAC and similar strategies involved. Using an `Army` for testing berry will not only help me make a thorough system, but also allow me to expand later.
 
+## May 17, 2025
+
+- wrote manifests and data models

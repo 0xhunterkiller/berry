@@ -8,7 +8,7 @@ import (
 )
 
 func addUtilRoutes(rg *gin.RouterGroup) {
-	utils := rg.Group("/utils")
+	utils := rg.Group("")
 
 	utils.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
