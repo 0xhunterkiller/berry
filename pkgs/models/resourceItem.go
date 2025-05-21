@@ -1,14 +1,8 @@
 package models
 
-import (
-	"fmt"
-
-	"gopkg.in/yaml.v3"
-)
-
 type ResourceItem struct {
-	Name  string   `yaml:"name"`
-	Verbs []string `yaml:"verbs"`
+	Name  string   `yaml:"name" json:"name" validate:"required"`
+	Verbs []string `yaml:"verbs" json:"verbs" validate:"required"`
 }
 
 func NewResourceItem(resourceName string, verbs []string) ResourceItem {
@@ -17,12 +11,12 @@ func NewResourceItem(resourceName string, verbs []string) ResourceItem {
 		Verbs: verbs,
 	}
 
-	yamlData, err := yaml.Marshal(&res)
-	if err != nil {
-		panic(err)
-	}
+	// yamlData, err := yaml.Marshal(&res)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	fmt.Println(string(yamlData))
+	// fmt.Println(string(yamlData))
 
 	return res
 }
