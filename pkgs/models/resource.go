@@ -1,11 +1,5 @@
 package models
 
-import (
-	"fmt"
-
-	"gopkg.in/yaml.v3"
-)
-
 type Resource struct {
 	APIVersion string       `yaml:"apiVersion"`
 	Kind       string       `yaml:"kind"`
@@ -29,11 +23,11 @@ func NewResource(apiVersion string, kind string, description string, name string
 		},
 	}
 
-	yamlData, err := yaml.Marshal(&res)
-	if err != nil {
-		panic(err)
-	}
+	// yamlData, err := yaml.Marshal(&res)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	fmt.Println(string(yamlData))
+	// fmt.Println(string(yamlData))
 	return res
 }
