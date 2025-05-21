@@ -1,5 +1,11 @@
 package models
 
+import (
+	"fmt"
+
+	"github.com/go-playground/validator/v10"
+)
+
 type User struct {
 	APIVersion string   `yaml:"apiVersion" json:"apiVersion" validate:"required"`
 	Kind       string   `yaml:"kind" json:"kind" validate:"required"`
@@ -12,7 +18,7 @@ type UserSpec struct {
 	Roles       []string `yaml:"roles" json:"roles" validate:"required"`
 }
 
-func NewUser(apiVersion string, name string, description string, roles []string) User {
+func NewUser(apiVersion string, name string, description string, roles []string) (*User, error) {
 	res := User{
 		APIVersion: apiVersion,
 		Kind:       "User",
@@ -22,6 +28,15 @@ func NewUser(apiVersion string, name string, description string, roles []string)
 			Roles:       roles,
 		},
 	}
+	validate := validator.New()
+
+	err := validate.Struct(res)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			fmt.Printf("Field '%s' failed validation tag '%s'\n", err.Field(), err.Tag())
+		}
+		return nil, err
+	}
 
 	// yamlData, err := yaml.Marshal(&res)
 	// if err != nil {
@@ -29,5 +44,5 @@ func NewUser(apiVersion string, name string, description string, roles []string)
 	// }
 
 	// fmt.Println(string(yamlData))
-	return res
+	return &res, nil
 }
