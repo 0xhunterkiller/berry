@@ -18,7 +18,7 @@ type UserSpec struct {
 	Roles       []string `yaml:"roles"`
 }
 
-func NewUser(apiVersion string, kind string, description string, name string, roles []string) {
+func NewUser(apiVersion string, kind string, description string, name string, roles []string) User {
 	res := User{
 		APIVersion: apiVersion,
 		Kind:       kind,
@@ -35,4 +35,5 @@ func NewUser(apiVersion string, kind string, description string, name string, ro
 	}
 
 	fmt.Println(string(yamlData))
+	return res
 }

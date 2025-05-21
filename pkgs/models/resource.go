@@ -18,7 +18,7 @@ type ResourceSpec struct {
 	Verbs       []string `yaml:"verbs"`
 }
 
-func NewResource(apiVersion string, kind string, description string, name string, verbs []string) {
+func NewResource(apiVersion string, kind string, description string, name string, verbs []string) Resource {
 	res := Resource{
 		APIVersion: apiVersion,
 		Kind:       kind,
@@ -35,4 +35,5 @@ func NewResource(apiVersion string, kind string, description string, name string
 	}
 
 	fmt.Println(string(yamlData))
+	return res
 }

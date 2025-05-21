@@ -27,3 +27,9 @@
 - There will be a k8s style rbac, resources, verbs and users...that's all!
 - wrote an organization generator (kind of a sidequest, but will prove crucial for testing system integrity in the future)
 - setup complete cobra-cli (writing each function is remaining)
+
+## May 20, 2025
+
+- Wrote code for marshalling user, role and resource data models. 
+- BerryCTL development is happening side by side, where I have finished writing a cobra cli, with create, delete, get and apply commands. There is also a `can` command that will help users find out who has access to what. It is also being written in golang.
+

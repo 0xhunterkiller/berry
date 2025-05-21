@@ -18,12 +18,7 @@ type RoleSpec struct {
 	Resources   []ResourceItem `yaml:"resources"`
 }
 
-type ResourceItem struct {
-	Name  string   `yaml:"name"`
-	Verbs []string `yaml:"verbs"`
-}
-
-func NewRole(apiVersion string, kind string, description string, name string, resources []ResourceItem) {
+func NewRole(apiVersion string, kind string, description string, name string, resources []ResourceItem) Role {
 	res := Role{
 		APIVersion: apiVersion,
 		Kind:       kind,
@@ -40,4 +35,5 @@ func NewRole(apiVersion string, kind string, description string, name string, re
 	}
 
 	fmt.Println(string(yamlData))
+	return res
 }
