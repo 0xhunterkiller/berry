@@ -18,6 +18,18 @@ type RoleSpec struct {
 	Resources   []ResourceItem `yaml:"resources" json:"resources" validate:"required"`
 }
 
+func (dat Role) Validate() error {
+	validate := validator.New()
+
+	err := validate.Struct(dat)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			return fmt.Errorf("field '%s' failed validation tag '%s'", err.Field(), err.Tag())
+		}
+	}
+	return nil
+}
+
 func NewRole(apiVersion string, name string, description string, resources []ResourceItem) (*Role, error) {
 	res := Role{
 		APIVersion: apiVersion,

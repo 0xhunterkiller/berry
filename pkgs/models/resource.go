@@ -18,6 +18,18 @@ type ResourceSpec struct {
 	Verbs       []string `yaml:"verbs" json:"verbs" validate:"required"`
 }
 
+func (dat Resource) Validate() error {
+	validate := validator.New()
+
+	err := validate.Struct(dat)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			return fmt.Errorf("field '%s' failed validation tag '%s'", err.Field(), err.Tag())
+		}
+	}
+	return nil
+}
+
 func NewResource(apiVersion string, name string, description string, verbs []string) (*Resource, error) {
 	res := Resource{
 		APIVersion: apiVersion,

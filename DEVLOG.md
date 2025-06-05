@@ -33,3 +33,7 @@
 - Wrote code for marshalling user, role and resource data models. 
 - BerryCTL development is happening side by side, where I have finished writing a cobra cli, with create, delete, get and apply commands. There is also a `can` command that will help users find out who has access to what. It is also being written in golang.
 
+# June 6, 2025
+
+- Major break, I just got back at this. I have been super distracted due to some work and family stuff.
+- 

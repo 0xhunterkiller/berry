@@ -18,6 +18,18 @@ type UserSpec struct {
 	Roles       []string `yaml:"roles" json:"roles" validate:"required"`
 }
 
+func (dat User) Validate() error {
+	validate := validator.New()
+
+	err := validate.Struct(dat)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			return fmt.Errorf("field '%s' failed validation tag '%s'", err.Field(), err.Tag())
+		}
+	}
+	return nil
+}
+
 func NewUser(apiVersion string, name string, description string, roles []string) (*User, error) {
 	res := User{
 		APIVersion: apiVersion,
